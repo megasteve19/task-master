@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	@apply font-sans antialiased text-gray-800 bg-stone-50;
+}
+
+h1 {
+	@apply text-3xl font-bold;
+}
+
+h2 {
+	@apply text-2xl font-bold;
+}
+
+h3 {
+	@apply text-xl font-bold;
+}
+
+h4 {
+	@apply text-lg font-bold;
+}
+
+h5 {
+	@apply text-base font-bold;
+}
+
+h6 {
+	@apply text-sm font-bold;
+}
+
+@keyframes animate-pop {
+	0% {
+		scale: 0.75;
+		opacity: 0;
+	}
+
+	100% {
+		scale: 1;
+		opacity: 1;
+	}
+}
+
+.animate-pop {
+	transform-origin: left;
+	animation-name: animate-pop;
+	animation-duration: 150ms;
+	animation-timing-function: ease-out;
+}

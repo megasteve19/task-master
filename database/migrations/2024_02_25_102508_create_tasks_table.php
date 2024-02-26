@@ -6,22 +6,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('tasks', function(Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignIdFor(Project::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Project::class)->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default(TaskStatus::Todo->value);
             $table->boolean('is_archived')->default(false);
             $table->timestamp('due_date')->nullable();
             $table->timestamps();
-			$table->softDeletes();
+            $table->softDeletes();
         });
     }
 

@@ -23,7 +23,7 @@
 				v-show="open"
 				class="absolute z-50 w-auto mt-2 rounded-lg shadow-lg"
 				:class="[alignmentClasses]"
-				@click="open = false"
+				@click="closeOnContentClick ? open = false : null"
 			>
 				<div
 					class="rounded-lg ring-1 ring-black ring-opacity-5"
@@ -45,13 +45,13 @@ const props = defineProps({
 		type: String,
 		default: 'right',
 	},
-	width: {
-		type: String,
-		default: '48',
-	},
 	contentClasses: {
 		type: String,
-		default: 'py-1 bg-white',
+		default: 'py-2 bg-white',
+	},
+	closeOnContentClick: {
+		type: Boolean,
+		default: true,
 	},
 });
 
@@ -69,10 +69,19 @@ const alignmentClasses = computed(() => {
 		return 'ltr:origin-top-left rtl:origin-top-right start-0';
 	} else if (props.align === 'right') {
 		return 'ltr:origin-top-right rtl:origin-top-left end-0';
-	} else {
+	} else if (props.align === 'center') {
+		return 'origin-top-center left-1/2 transform -translate-x-1/2';
+	}
+	 else {
 		return 'origin-top';
 	}
 });
 
 const open = ref(false);
+
+const close = () => {
+	open.value = false;
+};
+
+defineExpose({ close });
 </script>

@@ -48,3 +48,7 @@ h6 {
 	animation-duration: 150ms;
 	animation-timing-function: ease-out;
 }
+
+ul {
+	@apply pl-4 list-disc list-inside;
+}

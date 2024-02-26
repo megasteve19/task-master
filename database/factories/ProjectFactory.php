@@ -27,11 +27,11 @@ class ProjectFactory extends Factory
     /**
      * Indicate that the project is archived.
      *
-     * @return \Database\Factories\ProjectFactory
+     * @return ProjectFactory
      */
     public function archived(): ProjectFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'is_archived' => true,
             ];
@@ -41,11 +41,11 @@ class ProjectFactory extends Factory
     /**
      * Indicate that the project is not archived.
      *
-     * @return \Database\Factories\ProjectFactory
+     * @return ProjectFactory
      */
     public function notArchived(): ProjectFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'is_archived' => false,
             ];
@@ -55,11 +55,11 @@ class ProjectFactory extends Factory
     /**
      * Indicate that the project is due today.
      *
-     * @return \Database\Factories\ProjectFactory
+     * @return ProjectFactory
      */
     public function dueToday(): ProjectFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'due_date' => now(),
             ];
@@ -69,11 +69,11 @@ class ProjectFactory extends Factory
     /**
      * Indicate that the project is due tomorrow.
      *
-     * @return \Database\Factories\ProjectFactory
+     * @return ProjectFactory
      */
     public function dueTomorrow(): ProjectFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'due_date' => now()->addDay(),
             ];
@@ -83,11 +83,11 @@ class ProjectFactory extends Factory
     /**
      * Indicate that the project is due in 7 days.
      *
-     * @return \Database\Factories\ProjectFactory
+     * @return ProjectFactory
      */
     public function dueInAWeek(): ProjectFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'due_date' => now()->addWeek(),
             ];

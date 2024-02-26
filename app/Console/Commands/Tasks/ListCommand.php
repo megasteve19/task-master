@@ -31,7 +31,7 @@ class ListCommand extends Command
 
         $this->table(
             ['ID', 'Name', 'Description', 'Status', 'Due Date', 'Project', 'Assignees'],
-            $tasks->map(function (Task $task) {
+            $tasks->map(function(Task $task) {
                 return [
                     $task->id,
                     Str::limit($task->name, 16),

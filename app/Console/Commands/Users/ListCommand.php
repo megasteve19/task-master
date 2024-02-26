@@ -30,12 +30,12 @@ class ListCommand extends Command
 
         $this->table(
             ['ID', 'Name', 'Email', 'Role', 'Projects', 'Tasks'],
-            $users->map(function (User $user) {
+            $users->map(function(User $user) {
                 return [
                     $user->id,
                     $user->name,
                     $user->email,
-					$user->role->prettyName(),
+                    $user->role->prettyName(),
                     $user->projects_count,
                     $user->tasks_count,
                 ];

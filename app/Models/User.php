@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Laravel\Scout\Searchable;
 
 class User extends Authenticatable
 {
@@ -16,6 +18,7 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use HasUlids;
+    use Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -59,7 +62,7 @@ class User extends Authenticatable
 
     public function getAvatarAttribute()
     {
-        return "https://source.boringavatars.com/beam/128/{$this->name}.png";
+        return "https://source.boringavatars.com/beam/128/{$this->name}.png?square";
     }
 
     public function getIsOwnerAttribute(): bool
@@ -69,7 +72,7 @@ class User extends Authenticatable
 
     public function getIsAdminAttribute(): bool
     {
-        return $this->role === UserRole::Admin;
+        return in_array($this->role, [UserRole::Owner, UserRole::Admin]);
     }
 
     public function getIsUserAttribute(): bool
@@ -90,5 +93,16 @@ class User extends Authenticatable
     public function isAdministator(): bool
     {
         return in_array($this->role, [UserRole::Owner, UserRole::Admin]);
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'role' => $this->role->prettyName(),
+            'created_at' => is_string($this->created_at) ? Carbon::parse($this->created_at)->timestamp : $this->created_at->timestamp,
+        ];
     }
 }

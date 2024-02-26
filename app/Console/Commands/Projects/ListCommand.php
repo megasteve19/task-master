@@ -4,6 +4,7 @@ namespace App\Console\Commands\Projects;
 
 use App\Models\Project;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class ListCommand extends Command
@@ -13,7 +14,7 @@ class ListCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'projects:list';
+    protected $signature = 'projects:list {--with-trashed}';
 
     /**
      * The console command description.
@@ -27,11 +28,15 @@ class ListCommand extends Command
      */
     public function handle()
     {
-        $projects = Project::withCount('tasks')->with('assignees')->get();
+        $projects = Project::query()
+            ->withCount('tasks')
+            ->with('assignees')
+            ->when($this->option('with-trashed'), fn (Builder $query) => $query->withTrashed())
+            ->get();
 
         $this->table(
             ['ID', 'Name', 'Description', 'Due Date', 'Archived', 'Tasks', 'Assignees'],
-            $projects->map(function (Project $project) {
+            $projects->map(function(Project $project) {
                 return [
                     $project->id,
                     Str::limit($project->name, 32),

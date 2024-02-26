@@ -18,18 +18,18 @@ class UserSeeder extends Seeder
             'name' => 'Abdulkadir Cemiloğlu',
             'email' => 'kadir.cemiloglu1@gmail.com',
         ])
-        ->owner()
-        ->has(
-            Task::factory()
-                ->count(3)
-        )
-        ->has(
-            Project::factory()
-                ->has(
-                    Task::factory()
+            ->owner()
+            ->has(
+                Task::factory()
                     ->count(3)
-                )
-        )
-        ->create();
+            )
+            ->has(
+                Project::factory()
+                    ->has(
+                        Task::factory()
+                            ->count(3)
+                    )
+            )
+            ->create();
     }
 }

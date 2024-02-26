@@ -39,7 +39,8 @@ enum UserRole: string
      */
     public function prettyName(): string
     {
-        return match ($this) {
+        return match ($this)
+        {
             UserRole::Owner => 'Owner',
             UserRole::Admin => 'Administrator',
             UserRole::User => 'User',

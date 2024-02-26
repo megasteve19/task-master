@@ -44,14 +44,20 @@ const page = usePage();
 
 const welcomeMessage = computed(() => {
 	const currentHour = new Date().getHours();
-	const userName = page.props.auth.user.name.split(' ').shift();
+	const userName = (() => {
+		const popped = page.props.auth.user.name.split(' ');
+		popped.pop();
+		return popped.join(' ');
+	})();
 
-	if (currentHour < 12) {
-		return `Good morning, ${userName} 🌅`;
-	} else if (currentHour < 18) {
-		return `Good afternoon, ${userName} 🌞`;
+	if (currentHour < 12 && currentHour >= 6) {
+		return `Good Morning, ${userName} ☀️`;
+	} else if (currentHour < 18 && currentHour >= 12) {
+		return `Good Afternoon, ${userName} 🌅`;
+	} else if (currentHour < 22 && currentHour >= 18) {
+		return `Good Evening, ${userName} 🌆`;
 	} else {
-		return `Good evening, ${userName} 🌙`;
+		return `Good Night, ${userName} 🌙`;
 	}
 });
 

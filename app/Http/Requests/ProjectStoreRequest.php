@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProjectStoreRequest extends FormRequest
 {
@@ -18,7 +19,7 @@ class ProjectStoreRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<mixed>|\Illuminate\Contracts\Validation\ValidationRule|string>
      */
     public function rules(): array
     {
@@ -26,6 +27,8 @@ class ProjectStoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:65535',
             'due_date' => 'nullable|date',
+            'assignees' => 'array',
+            'assignees.*' => ['required', Rule::exists(User::class, 'id')],
         ];
     }
 }

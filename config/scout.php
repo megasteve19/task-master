@@ -189,6 +189,14 @@ return [
                             'type' => 'string',
                         ],
                         [
+                            'name' => 'email',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'role',
+                            'type' => 'string',
+                        ],
+                        [
                             'name' => 'created_at',
                             'type' => 'int64',
                         ],
@@ -196,7 +204,7 @@ return [
                     'default_sorting_field' => 'created_at',
                 ],
                 'search-parameters' => [
-                    'query_by' => 'name'
+                    'query_by' => 'name,email,role',
                 ],
             ],
 
@@ -206,44 +214,44 @@ return [
                         [
                             'name' => 'id',
                             'type' => 'string',
-							'optional' => true,
+                            'optional' => true,
                         ],
                         [
                             'name' => 'name',
                             'type' => 'string',
-							'optional' => true,
+                            'optional' => true,
                         ],
                         [
                             'name' => 'description',
                             'type' => 'string',
-							'optional' => true,
+                            'optional' => true,
                         ],
                         [
                             'name' => 'due_date',
                             'type' => 'string',
-							'optional' => true,
-						
+                            'optional' => true,
+
                         ],
-						[
-							'name' => 'assignees',
-							'type' => 'string[]',
-							'optional' => true,
-						],
+                        [
+                            'name' => 'assignees',
+                            'type' => 'string[]',
+                            'optional' => true,
+                        ],
                         [
                             'name' => 'created_at',
                             'type' => 'int32',
-						],
-						[
-							'name' => '__soft_deleted',
-							'type' => 'int32',
-							'optional' => true,
-						]
+                        ],
+                        [
+                            'name' => '__soft_deleted',
+                            'type' => 'int32',
+                            'optional' => true,
+                        ],
                     ],
-					'default_sorting_field' => 'created_at',
+                    'default_sorting_field' => 'created_at',
                 ],
-				'search-parameters' => [
-					'query_by' => 'name,description,assignees,due_date',
-				],
+                'search-parameters' => [
+                    'query_by' => 'name,description,assignees,due_date',
+                ],
             ],
         ],
     ],

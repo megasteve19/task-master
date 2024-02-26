@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\TaskStatus;
+use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +19,7 @@ class TaskFactory extends Factory
     public function definition(): array
     {
         return [
+            'project_id' => Project::factory(),
             'name' => fake()->words(3, true),
             'description' => fake()->sentence(),
             'status' => fake()->randomElement(TaskStatus::cases()),
@@ -29,11 +31,11 @@ class TaskFactory extends Factory
     /**
      * Indicate that the task is archived.
      *
-     * @return \Database\Factories\TaskFactory
+     * @return TaskFactory
      */
     public function archived(): TaskFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'is_archived' => true,
             ];
@@ -43,11 +45,11 @@ class TaskFactory extends Factory
     /**
      * Indicate that the task is not archived.
      *
-     * @return \Database\Factories\TaskFactory
+     * @return TaskFactory
      */
     public function notArchived(): TaskFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'is_archived' => false,
             ];
@@ -57,11 +59,11 @@ class TaskFactory extends Factory
     /**
      * Indicate that the task status is todo.
      *
-     * @return \Database\Factories\TaskFactory
+     * @return TaskFactory
      */
     public function todo(): TaskFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'status' => TaskStatus::Todo,
             ];
@@ -71,11 +73,11 @@ class TaskFactory extends Factory
     /**
      * Indicate that the task status is in progress.
      *
-     * @return \Database\Factories\TaskFactory
+     * @return TaskFactory
      */
     public function inProgress(): TaskFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'status' => TaskStatus::InProgress,
             ];
@@ -85,11 +87,11 @@ class TaskFactory extends Factory
     /**
      * Indicate that the task status is completed.
      *
-     * @return \Database\Factories\TaskFactory
+     * @return TaskFactory
      */
     public function completed(): TaskFactory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function(array $attributes) {
             return [
                 'status' => TaskStatus::Completed,
             ];

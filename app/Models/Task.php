@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\TaskStatus;
-use Arr;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,10 +44,16 @@ class Task extends Model
         $builder->where('due_date', '<', now());
     }
 
-    public function scopeAssignedTo(Builder $builder, User ...$users)
+    public function scopeAssignedTo(Builder $builder, User $user)
     {
-        $builder->whereHas('assignees', function (Builder $builder) use ($users) {
-            $builder->whereIn('user_id', Arr::pluck($users, 'id'));
-        });
+        $builder
+            ->whereHas('assignees', function(Builder $builder) use ($user) {
+                $builder->where('user_id', $user->id);
+            });
+            // ->whereHas('project', function(Builder $builder) use ($user) {
+            //     $builder->whereHas('assignees', function(Builder $builder) use ($user) {
+            //         $builder->where('user_id', $user->id);
+            //     });
+            // });
     }
 }

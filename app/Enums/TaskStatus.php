@@ -26,7 +26,8 @@ enum TaskStatus: string
      */
     public function prettyName(): string
     {
-        return match ($this) {
+        return match ($this)
+        {
             TaskStatus::Todo => 'To Do',
             TaskStatus::InProgress => 'In Progress',
             TaskStatus::Completed => 'Completed',

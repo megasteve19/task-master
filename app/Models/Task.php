@@ -19,14 +19,14 @@ class Task extends Model
         'name',
         'description',
         'status',
-        'is_archived',
+        'archived_at',
         'due_date',
     ];
 
     protected $casts = [
         'status' => TaskStatus::class,
         'due_date' => 'datetime',
-        'is_archived' => 'boolean',
+        'archived_at' => 'datetime',
     ];
 
     public function project()

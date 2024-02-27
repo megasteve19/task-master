@@ -23,37 +23,9 @@ class TaskFactory extends Factory
             'name' => fake()->words(3, true),
             'description' => fake()->sentence(),
             'status' => fake()->randomElement(TaskStatus::cases()),
-            'is_archived' => fake()->boolean(),
+            'archived_at' => fake()->boolean() ? fake()->dateTimeBetween('-6 months', '-1 day') : null,
             'due_date' => fake()->boolean() ? fake()->dateTimeBetween('-6 months', '+6 months') : null,
         ];
-    }
-
-    /**
-     * Indicate that the task is archived.
-     *
-     * @return TaskFactory
-     */
-    public function archived(): TaskFactory
-    {
-        return $this->state(function(array $attributes) {
-            return [
-                'is_archived' => true,
-            ];
-        });
-    }
-
-    /**
-     * Indicate that the task is not archived.
-     *
-     * @return TaskFactory
-     */
-    public function notArchived(): TaskFactory
-    {
-        return $this->state(function(array $attributes) {
-            return [
-                'is_archived' => false,
-            ];
-        });
     }
 
     /**

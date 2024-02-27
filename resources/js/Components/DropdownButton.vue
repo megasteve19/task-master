@@ -1,7 +1,7 @@
 <template>
 	<button
 		type="button"
-		class="flex flex-row items-center w-full gap-3 px-4 py-1.5 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out text-start whitespace-nowrap hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
+		class="flex flex-row items-center w-full gap-3 px-4 py-1.5 text-sm font-medium text-gray-700 transition duration-150 ease-in-out whitespace-nowrap hover:bg-gray-100 focus:bg-gray-100"
 		:class="classes"
 	>
 		<slot />

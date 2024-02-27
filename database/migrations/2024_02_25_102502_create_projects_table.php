@@ -15,7 +15,7 @@ return new class() extends Migration
             $table->ulid('id')->primary();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->boolean('is_archived')->default(false);
+            $table->timestamp('archived_at')->nullable();
             $table->timestamp('due_date')->nullable();
             $table->timestamps();
             $table->softDeletes();

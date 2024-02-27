@@ -30,7 +30,7 @@ class Project extends Model
         'name',
         'description',
         'due_date',
-        'is_archived',
+        'archived_at',
     ];
 
     /**
@@ -48,7 +48,7 @@ class Project extends Model
      * @var string[]
      */
     protected $casts = [
-        'is_archived' => 'boolean',
+        'archived_at' => 'datetime',
         'due_date' => 'datetime',
     ];
 
@@ -64,7 +64,7 @@ class Project extends Model
             return false;
         }
 
-        return $this->due_date < now();
+        return $this->due_date > now();
     }
 
     /**
@@ -96,7 +96,7 @@ class Project extends Model
      */
     public function scopeActive(Builder $builder)
     {
-        return $builder->where('is_archived', false);
+        return $builder->whereNull('archived_at');
     }
 
     /**
@@ -108,7 +108,7 @@ class Project extends Model
      */
     public function scopeArchived(Builder $builder)
     {
-        return $builder->where('is_archived', true);
+        return $builder->whereNotNull('archived_at');
     }
 
     /**
@@ -144,6 +144,23 @@ class Project extends Model
     }
 
     /**
+     * Scope a query to only include users assigned to the project.
+     *
+     * @param Builder $builder
+     * @param (string|User)[] $users
+     *
+     * @return Builder
+     */
+    public function scopeAssignedTo(Builder $builder, User|string ...$users): Builder
+    {
+        $users = collect($users)->map(fn ($user) => $user instanceof User ? $user->id : $user);
+
+        return $builder->whereHas('assignees', function(Builder $builder) use ($users) {
+            $builder->whereIn('user_id', $users);
+        });
+    }
+
+    /**
      * Get the indexable data array for the model.
      *
      * @return array
@@ -167,11 +184,11 @@ class Project extends Model
      */
     public function archive(): bool
     {
-        $this->is_archived = true;
+        $this->archived_at = now();
 
         if ($saved = $this->save())
         {
-            $this->tasks()->update(['is_archived' => true]);
+            $this->tasks()->update(['archived_at' => now()]);
         }
 
         return $saved;
@@ -184,11 +201,11 @@ class Project extends Model
      */
     public function restoreFromArchive(): bool
     {
-        $this->is_archived = false;
+        $this->archived_at = null;
 
         if ($saved = $this->save())
         {
-            $this->tasks()->update(['is_archived' => false]);
+            $this->tasks()->update(['archived_at' => null]);
         }
 
         return $saved;

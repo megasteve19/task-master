@@ -19,37 +19,9 @@ class ProjectFactory extends Factory
         return [
             'name' => fake()->words(3, true),
             'description' => fake()->realText(),
-            'is_archived' => fake()->boolean(),
+            'archived_at' => fake()->boolean() ? fake()->dateTimeBetween('-6 months', '-1 day') : null,
             'due_date' => fake()->boolean() ? fake()->dateTimeBetween('-6 months', '+6 months') : null,
         ];
-    }
-
-    /**
-     * Indicate that the project is archived.
-     *
-     * @return ProjectFactory
-     */
-    public function archived(): ProjectFactory
-    {
-        return $this->state(function(array $attributes) {
-            return [
-                'is_archived' => true,
-            ];
-        });
-    }
-
-    /**
-     * Indicate that the project is not archived.
-     *
-     * @return ProjectFactory
-     */
-    public function notArchived(): ProjectFactory
-    {
-        return $this->state(function(array $attributes) {
-            return [
-                'is_archived' => false,
-            ];
-        });
     }
 
     /**

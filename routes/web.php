@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function() {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('projects', ProjectController::class)->only('index', 'store', 'update', 'destroy');
+    Route::resource('projects', ProjectController::class)->only('index', 'show', 'store', 'update', 'destroy');
 
     Route::controller(ProjectController::class)->prefix('projects/{project}')->name('projects.')->group(function() {
         Route::put('archive', 'archive')->name('archive');

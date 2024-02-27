@@ -5,6 +5,7 @@
 				<TextInput
 					class="w-full h-10"
 					placeholder="Search for projects or tasks..."
+					v-model="search"
 				/>
 			</div>
 			<div class="flex items-center justify-end">
@@ -26,6 +27,7 @@
 							variant="danger"
 							:href="route('logout')"
 							method="post"
+							as="button"
 						>
 							<LogoutIcon class="w-4 h-4" />
 							Logout
@@ -59,7 +61,7 @@
 <script setup>
 import Sidebar from '@/Components/Sidebar.vue';
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -74,4 +76,6 @@ const props = defineProps({
 const page = usePage();
 
 const user = computed(() => page.props.auth.user);
+
+const search = ref('');
 </script>

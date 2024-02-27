@@ -19,7 +19,7 @@ return new class() extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default(TaskStatus::Todo->value);
-            $table->boolean('is_archived')->default(false);
+            $table->timestamp('archived_at')->nullable();
             $table->timestamp('due_date')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -10,7 +10,6 @@ use App\Http\Requests\ProjectRestoreDeleted;
 use App\Http\Requests\ProjectStoreRequest;
 use App\Http\Requests\ProjectUpdateRequest;
 use App\Models\Project;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,34 +18,36 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
+        $status = $request->input('filters.status', 'active');
+
         return Inertia::render('Projects/Index', [
-            'projects' => fn () =>Project::accessibleBy($request->user())
+            'projects' => fn () => Project::accessibleBy($request->user())
                 ->withCount('tasks')
                 ->with('assignees')
                 ->when(
-                    !empty($request->input('search')),
-                    fn (Builder $builder) => $builder->whereIn('id', Project::search($request->input('search'))->keys())
+                    $request->filled('filters.search'),
+                    fn (Builder $builder) => $builder->whereIn('id', Project::search($request->input('filters.search'))->keys())
                 )
-                ->where(
-                    fn (Builder $builder) => match ($request->input('status', 'active'))
-                    {
-                        'active' => $builder->active(),
-                        'archived' => $builder->archived(),
-                        'trashed' => $builder->onlyTrashed(),
-                        default => $builder,
-                    }
+                ->when(
+                    $request->filled('filters.assignees'),
+                    fn (Builder $builder) => $builder->assignedTo(...explode(',', $request->input('filters.assignees')))
                 )
-                ->paginate(10),
+                ->when($status === 'active', fn (Builder $builder) => $builder->active()->orderByDesc('due_date'))
+                ->when($status === 'archived', fn (Builder $builder) => $builder->archived()->orderByDesc('archived_at'))
+                ->when($status === 'trashed', fn (Builder $builder) => $builder->onlyTrashed()->orderByDesc('deleted_at'))
+                ->get(),
 
-            'users' => Inertia::lazy(fn () => $request->whenFilled(
-                key: 'userSearch',
-                callback: fn (string $search) => User::query()
-                    ->whereIn('id', User::search($search)->keys())
-                    ->whereNotIn('id', explode(',', $request->input('userExcept', [])))
-                    ->limit(5)
-                    ->get(),
-                default: fn () => []
-            )),
+            'filters' => [
+                'search' => $request->input('filters.search', ''),
+                'status' => $status,
+            ],
+        ]);
+    }
+
+    public function show(Project $project)
+    {
+        return Inertia::render('Projects/Show', [
+            'project' => $project->load('assignees', 'tasks', 'tasks.assignees'),
         ]);
     }
 
@@ -54,7 +55,7 @@ class ProjectController extends Controller
     {
         $project = Project::create($request->only('name', 'description', 'due_date'));
 
-        $project->assignees()->sync($request->input('assignees'));
+        $project->assignees()->sync(array_unique($request->input('assignees')));
 
         return redirect()->back();
     }
@@ -63,7 +64,7 @@ class ProjectController extends Controller
     {
         $project->update($request->only('name', 'description', 'due_date'));
 
-        $project->assignees()->sync($request->input('assignees'));
+        $project->assignees()->sync(array_unique($request->input('assignees')));
 
         return redirect()->back();
     }

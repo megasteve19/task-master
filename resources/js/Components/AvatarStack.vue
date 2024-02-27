@@ -1,13 +1,13 @@
 <template>
 	<div class="flex -space-x-4">
 		<div
-			v-for="user in users"
+			v-for="user in props.searchable ? users : props.users"
 			:key="user.id"
 			class="relative group"
 			:class="{
-				'cursor-pointer': withEdit,
+				'cursor-pointer': searchable,
 			}"
-			@click="emit('remove', user)"
+			@click="search.remove(user)"
 		>
 			<img
 				:src="user.avatar"
@@ -21,7 +21,7 @@
 			</div>
 		</div>
 
-		<template v-if="withEdit">
+		<template v-if="searchable">
 			<div class="relative group">
 				<Dropdown
 					:close-on-content-click="false"
@@ -32,7 +32,6 @@
 						<button
 							type="button"
 							class="flex items-center justify-center w-8 h-8 text-gray-400 bg-white border-white rounded-full shadow-sm hover:bg-gray-100"
-							@click="emit('add')"
 						>
 							<AddIcon class="w-4 h-4" />
 						</button>
@@ -43,26 +42,26 @@
 							<InputLabel>Search</InputLabel>
 
 							<TextInput
-								class="w-64"
-								v-model="model"
+								class="min-w-48"
+								v-model="search.query"
 								placeholder="Search for a user..."
 								sm
 							/>
 						</div>
 
 						<DropdownButton
-							v-if="searchResults?.length ?? 0 !== 0"
-							v-for="user in searchResults"
+							v-if="search.results.length !== 0"
+							v-for="user in search.results"
 							:key="user.id"
-							@click="add(user)"
+							@click="search.add(user)"
 						>
 							<img
 								:src="user.avatar"
 								:alt="user.name"
-								class="w-8 h-8 border border-white rounded-full shadow-sm"
+								class="w-8 h-8 rounded-full shadow-sm"
 							/>
 
-							<span class="ml-2">{{ user.name }}</span>
+							<span>{{ user.name }}</span>
 						</DropdownButton>
 						<p
 							v-else
@@ -82,22 +81,61 @@ import DropdownButton from './DropdownButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { ref } from 'vue';
+import { reactive } from 'vue';
+import { onMounted } from 'vue';
+import { watch } from 'vue';
 
 const props = defineProps({
-	users: Array,
-	searchResults: Array,
-	withEdit: Boolean,
+	users: [Array, null],
+	searchable: {
+		type: Boolean,
+		default: false,
+	},
 });
 
-const model = defineModel('search');
-
-const emit = defineEmits(['add', 'remove']);
+const users = defineModel({
+	required: false,
+	type: Array,
+	default: [],
+});
 
 const dropdown = ref(null);
 
-const add = (user) => {
-	emit('add', user);
-	model.value = '';
-	dropdown.value.close();
-};
+const search = reactive({
+	query: '',
+
+	results: [],
+
+	async perform() {
+		console.log(route('api.search.users'));
+
+		const results = await fetch(route('api.search.users', {
+			query: this.query,
+			except: users.value.map((user) => user.id),
+			limit: 5,
+		}), { headers: { 'accept': 'application/json' } });
+
+		this.results = (await results.json()).data;
+	},
+
+	add(user) {
+		users.value.push(user);
+		this.query = '';
+		this.results = [];
+		dropdown.value.close();
+	},
+
+	remove(user) {
+		users.value = users.value.filter((u) => u.id !== user.id);
+	},
+});
+
+watch(() => search.query, () => {
+	if (search.query === '') {
+		search.results = [];
+		return;
+	}
+
+	search.perform();
+});
 </script>

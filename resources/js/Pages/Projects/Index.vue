@@ -20,6 +20,12 @@
 			/>
 
 			<div class="flex justify-between">
+				<div>
+					<AvatarStack
+						searchable
+						v-model="filters.assignees"
+					/>
+				</div>
 				<div class="flex gap-4">
 					<Button
 						:variant="filters.status === 'active' ? 'success' : 'default'"
@@ -44,112 +50,21 @@
 		</div>
 
 		<section
-			v-if="projects.data.length !== 0"
+			v-if="projects.length !== 0"
 			class="flex flex-col gap-4"
 		>
 			<!-- Project Cards -->
-			<Card
-				v-for="project in projects.data"
+			<ProjectCard
+				v-for="project in projects"
 				:key="project.id"
-			>
-				<div class="flex justify-between mb-2">
-					<div class="flex items-center gap-4">
-						<!-- Due Date -->
-						<div
-							class="flex items-center gap-2 text-xs"
-							:class="{
-								'text-gray-400': !project.is_overdue,
-								'text-rose-500': project.is_overdue,
-							}"
-						>
-							<ClockIcon class="w-3.5 h-3.5" />
-							{{ project.due_date ? new Date(project.due_date).toLocaleDateString() : 'N/A' }}
-						</div>
-
-						<!-- Task Count -->
-						<div class="flex items-center gap-2 text-xs text-gray-400">
-							<CardListIcon class="w-3.5 h-3.5" />
-							{{ project.tasks_count }} tasks
-						</div>
-					</div>
-
-					<!-- Dropdown Actions -->
-					<Dropdown v-if="isRole('admin')">
-						<template #trigger>
-							<button class="text-gray-400 hover:text-gray-600">
-								<VerticalDotsIcon class="w-4 h-4" />
-							</button>
-						</template>
-
-						<template #content>
-							<!-- Edit -->
-							<DropdownButton
-								v-if="!project.is_archived && !project.deleted_at"
-								@click="projectFormModal.openModal(project)"
-							>
-								<PenIcon class="w-4 h-4" />
-								Edit
-							</DropdownButton>
-
-							<!-- Archive -->
-							<template v-if="!project.deleted_at">
-								<DropdownButton
-									v-if="!project.is_archived"
-									variant="warning"
-									@click="archiveProject.openModal(project.id)"
-								>
-									<ArchiveIcon class="w-4 h-4" />
-									Archive
-								</DropdownButton>
-
-								<!-- Restore Archived -->
-								<DropdownButton
-									v-else
-									variant="default"
-									@click="restoreArchivedProject.openModal(project.id)"
-								>
-									<RestoreIcon class="w-4 h-4" />
-									Restore
-								</DropdownButton>
-							</template>
-
-							<!-- Delete -->
-							<DropdownButton
-								v-if="!project.deleted_at"
-								variant="danger"
-								@click="deleteProject.openModal(project.id)"
-							>
-								<TrashIcon class="w-4 h-4" />
-								Delete
-							</DropdownButton>
-							<template v-else>
-								<!-- Restore Deleted -->
-								<DropdownButton
-									variant="default"
-									@click="restoreDeletedProject.openModal(project.id)"
-								>
-									<RestoreIcon class="w-4 h-4" />
-									Restore
-								</DropdownButton>
-
-								<!-- Permanently Delete -->
-								<DropdownButton
-									variant="danger"
-									@click="permanentlyDeleteProject.openModal(project.id)"
-								>
-									<TrashIcon class="w-4 h-4" />
-									Permanently Delete
-								</DropdownButton>
-							</template>
-						</template>
-					</Dropdown>
-				</div>
-
-				<!-- Project Details -->
-				<h3 class="mb-1">{{ project.name }}</h3>
-				<p class="mb-1">{{ project.description }}</p>
-				<AvatarStack :users="project.assignees" />
-			</Card>
+				:project="project"
+				@edit="project => projectFormModal.openModal(project)"
+				@archive="project => archiveProject.openModal(project)"
+				@restore-archived="project => restoreArchivedProject.openModal(project)"
+				@delete="project => deleteProject.openModal(project)"
+				@restore-deleted="project => restoreDeletedProject.openModal(project)"
+				@permanently-delete="project => permanentlyDeleteProject.openModal(project)"
+			/>
 		</section>
 
 		<p
@@ -302,12 +217,8 @@
 				<InputLabel value="Assignees" />
 
 				<AvatarStack
-					:users="projectForm.assignees"
-					v-model:search="projectFormModal.userSearch"
-					with-edit
-					:search-results="users"
-					@add="projectFormModal.addUser"
-					@remove="projectFormModal.removeUser"
+					v-model="projectForm.assignees"
+					searchable
 				/>
 			</div>
 		</form>
@@ -327,52 +238,51 @@
 </template>
 
 <script setup>
-import Card from '@/Components/Card.vue';
-import AppLayout from '@/Layouts/AppLayout.vue';
-import AvatarStack from '@/Components/AvatarStack.vue';
-import ClockIcon from '@/Components/Icons/Clock.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownButton from '@/Components/DropdownButton.vue';
-import Button from '@/Components/Button.vue';
-import Modal from '@/Components/Modal.vue';
-import TextInput from '@/Components/TextInput.vue';
-import VerticalDotsIcon from '@/Components/Icons/VerticalDots.vue';
-import PenIcon from '@/Components/Icons/Pen.vue';
-import TrashIcon from '@/Components/Icons/Trash.vue';
-import ArchiveIcon from '@/Components/Icons/Archive.vue';
-import RestoreIcon from '@/Components/Icons/Restore.vue';
 import { reactive } from 'vue';
 import { router, useForm, Head } from '@inertiajs/vue3';
 import { watch, computed } from 'vue';
+import { isRole } from '@/helpers';
+
+// Layout.
+import AppLayout from '@/Layouts/AppLayout.vue';
+
+// Components.
+import ProjectCard from '@/Components/ProjectCard.vue';
+import AvatarStack from '@/Components/AvatarStack.vue';
+import Button from '@/Components/Button.vue';
+import Modal from '@/Components/Modal.vue';
+import TextInput from '@/Components/TextInput.vue';
 import TextArea from '@/Components/TextArea.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
-import CardListIcon from '@/Components/Icons/CardList.vue';
-import { isRole } from '@/helpers';
 
 /**
  * Props of the page.
  */
 const props = defineProps({
 	projects: Object,
-	users: {
-		type: Array,
-		default: [],
-	},
+	filters: Object,
 });
 
 /**
  * Filters for the projects.
  */
 const filters = reactive({
-	search: '',
-	status: 'active',
+	search: props.filters.search || '',
+	status: props.filters.status || 'active',
+	assignees: [],
 });
 
 // Reload the page when the filters change.
-watch(() => {
+watch(filters, () => {
 	router.reload({
-		data: filters,
+		data: {
+			filters: {
+				search: filters.search,
+				status: filters.status,
+				assignees: filters.assignees.map((assignee) => assignee.id).join(',')
+			}
+		},
 	});
 });
 
@@ -386,10 +296,10 @@ const deleteProject = reactive({
 	/**
 	 * Opens the delete project modal.
 	 * 
-	 * @param {String} projectId 
+	 * @param {String} project 
 	 */
-	openModal(projectId) {
-		this.projectId = projectId;
+	openModal(project) {
+		this.projectId = project.id;
 		this.showModal = true;
 	},
 
@@ -420,10 +330,10 @@ const permanentlyDeleteProject = reactive({
 	/**
 	 * Opens the permanently delete project modal.
 	 * 
-	 * @param {String} projectId 
+	 * @param {String} project 
 	 */
-	openModal(projectId) {
-		this.projectId = projectId;
+	openModal(project) {
+		this.projectId = project.id;
 		this.showModal = true;
 	},
 
@@ -453,11 +363,9 @@ const restoreDeletedProject = reactive({
 
 	/**
 	 * Opens the restore deleted project modal.
-	 * 
-	 * @param {String} projectId 
 	 */
-	openModal(projectId) {
-		this.projectId = projectId;
+	openModal(project) {
+		this.projectId = project.id;
 		this.showModal = true;
 	},
 
@@ -487,11 +395,9 @@ const archiveProject = reactive({
 
 	/**
 	 * Opens the archive project modal.
-	 * 
-	 * @param {String} projectId 
 	 */
-	openModal(projectId) {
-		this.projectId = projectId;
+	openModal(project) {
+		this.projectId = project.id;
 		this.showModal = true;
 	},
 
@@ -521,11 +427,9 @@ const restoreArchivedProject = reactive({
 
 	/**
 	 * Opens the restore archived project modal.
-	 * 
-	 * @param {String} projectId 
 	 */
-	openModal(projectId) {
-		this.projectId = projectId;
+	openModal(project) {
+		this.projectId = project.id;
 		this.showModal = true;
 	},
 
@@ -563,12 +467,6 @@ const projectForm = useForm({
 const projectFormModal = reactive({
 	showModal: false,
 	isEditing: false,
-	userSearch: '',
-
-	// We have to join them because it seems like there'a bug in the Inertia's query array parameters.
-	// It always keeps adding new parameters, and doesn't remove the old ones.
-	// So, we have to join them and then split them in the controller.
-	userExcept: computed(() => projectForm.assignees.map((assignee) => assignee.id).join(',')),
 
 	/**
 	 * Opens the project form modal.
@@ -599,7 +497,6 @@ const projectFormModal = reactive({
 		projectForm.assignees = [];
 		this.isEditing = false;
 		this.showModal = false;
-		this.userSearch = '';
 	},
 
 	/**
@@ -627,34 +524,5 @@ const projectFormModal = reactive({
 			onSuccess: () => this.closeModal(),
 		});
 	},
-
-	/**
-	 * Adds a user to the assignees.
-	 */
-	addUser(user) {
-		if (!user) {
-			return;
-		}
-
-		projectForm.assignees.push(user);
-		projectFormModal.userSearch = '';
-	},
-
-	/**
-	 * Removes a user from the assignees.
-	 */
-	removeUser(user) {
-		projectForm.assignees = projectForm.assignees.filter((assignee) => assignee.id !== user.id);
-	},
-});
-
-watch([() => projectFormModal.userSearch, () => projectFormModal.userExcept], () => {
-	router.reload({
-		data: {
-			userSearch: projectFormModal.userSearch,
-			userExcept: projectFormModal.userExcept,
-		},
-		only: ['users'],
-	});
 });
 </script>

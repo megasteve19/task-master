@@ -2,18 +2,18 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
+use App\Enums\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ProjectUpdateRequest extends FormRequest
+class ProjectTaskUpdateStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->is_admin && !$this->route('project')->archived_at;
+        return $this->route('project')->isAccessibleBy($this->user());
     }
 
     /**
@@ -24,11 +24,7 @@ class ProjectUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:65535',
-            'due_date' => 'nullable|date',
-            'assignees' => 'array',
-            'assignees.*' => ['required', Rule::exists(User::class, 'id')],
+            'status' => ['required', 'string', Rule::enum(TaskStatus::class)],
         ];
     }
 }

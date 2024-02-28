@@ -31,7 +31,7 @@
 			</div>
 
 			<!-- Dropdown Actions -->
-			<Dropdown v-if="isRole('admin')">
+			<Dropdown>
 				<template #trigger>
 					<button class="text-gray-400 hover:text-gray-600">
 						<VerticalDotsIcon class="w-4 h-4" />
@@ -39,69 +39,74 @@
 				</template>
 
 				<template #content>
-					<DropdownLink :href="route('projects.show', project)">
+					<DropdownLink
+						v-if="!project.deleted_at"
+						:href="route('projects.show', project)"
+					>
 						<EyeIcon class="w-4 h-4" />
 						View
 					</DropdownLink>
 
-					<!-- Edit -->
-					<DropdownButton
-						v-if="!project.archived_at && !project.deleted_at"
-						@click="emit('edit', project)"
-					>
-						<PenIcon class="w-4 h-4" />
-						Edit
-					</DropdownButton>
-
-					<!-- Archive -->
-					<template v-if="!project.deleted_at">
+					<template v-if="isRole('admin') && crud">
+						<!-- Edit -->
 						<DropdownButton
-							v-if="!project.archived_at"
-							variant="warning"
-							@click="emit('archive', project)"
+							v-if="!project.archived_at && !project.deleted_at"
+							@click="emit('edit', project)"
 						>
-							<ArchiveIcon class="w-4 h-4" />
-							Archive
+							<PenIcon class="w-4 h-4" />
+							Edit
 						</DropdownButton>
 
-						<!-- Restore Archived -->
-						<DropdownButton
-							v-else
-							variant="default"
-							@click="emit('restore-archived', project)"
-						>
-							<RestoreIcon class="w-4 h-4" />
-							Restore
-						</DropdownButton>
-					</template>
+						<!-- Archive -->
+						<template v-if="!project.deleted_at">
+							<DropdownButton
+								v-if="!project.archived_at"
+								variant="warning"
+								@click="emit('archive', project)"
+							>
+								<ArchiveIcon class="w-4 h-4" />
+								Archive
+							</DropdownButton>
 
-					<!-- Delete -->
-					<DropdownButton
-						v-if="!project.deleted_at"
-						variant="danger"
-						@click="emit('delete', project)"
-					>
-						<TrashIcon class="w-4 h-4" />
-						Delete
-					</DropdownButton>
-					<template v-else>
-						<!-- Restore Deleted -->
-						<DropdownButton
-							variant="default"
-							@click="emit('restore-deleted', project)"
-						>
-							<RestoreIcon class="w-4 h-4" />
-							Restore
-						</DropdownButton>
+							<!-- Restore Archived -->
+							<DropdownButton
+								v-else
+								variant="default"
+								@click="emit('restore-archived', project)"
+							>
+								<RestoreIcon class="w-4 h-4" />
+								Restore
+							</DropdownButton>
+						</template>
 
-						<!-- Permanently Delete -->
+						<!-- Delete -->
 						<DropdownButton
+							v-if="!project.deleted_at"
 							variant="danger"
-							@click="emit('permanently-delete', project)"
+							@click="emit('delete', project)"
 						>
 							<TrashIcon class="w-4 h-4" />
-							Permanently Delete
+							Delete
 						</DropdownButton>
+						<template v-else>
+							<!-- Restore Deleted -->
+							<DropdownButton
+								variant="default"
+								@click="emit('restore-deleted', project)"
+							>
+								<RestoreIcon class="w-4 h-4" />
+								Restore
+							</DropdownButton>
+
+							<!-- Permanently Delete -->
+							<DropdownButton
+								variant="danger"
+								@click="emit('permanently-delete', project)"
+							>
+								<TrashIcon class="w-4 h-4" />
+								Permanently Delete
+							</DropdownButton>
+						</template>
 					</template>
 				</template>
 			</Dropdown>
@@ -110,7 +115,18 @@
 		<!-- Project Details -->
 		<h3 class="mb-1">{{ project.name }}</h3>
 		<p class="mb-1">{{ project.description }}</p>
-		<AvatarStack :users="project.assignees" />
+		<div class="flex items-center justify-between">
+			<AvatarStack :users="project.assignees" />
+
+			<ButtonLink
+				class="flex items-center gap-1"
+				variant="default"
+				:href="route('projects.tasks.index', project)"
+			>
+				<span>See Tasks</span>
+				<ArrowRightIcon class="w-4 h-4" />
+			</ButtonLink>
+		</div>
 	</Card>
 </template>
 
@@ -123,6 +139,7 @@ import Dropdown from './Dropdown.vue';
 import DropdownLink from './DropdownLink.vue';
 import DropdownButton from './DropdownButton.vue';
 import AvatarStack from './AvatarStack.vue';
+import ButtonLink from './ButtonLink.vue';
 
 
 // Icons
@@ -134,10 +151,14 @@ import RestoreIcon from '@/Components/Icons/Restore.vue';
 import CardListIcon from '@/Components/Icons/CardList.vue';
 import ClockIcon from '@/Components/Icons/Clock.vue';
 import EyeIcon from '@/Components/Icons/Eye.vue';
+import ArrowRightIcon from '@/Components/Icons/ArrowRight.vue';
 
 const props = defineProps({
 	project: Object,
-	dropdown: Boolean,
+	crud: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const emit = defineEmits([

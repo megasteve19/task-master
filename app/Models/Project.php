@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
@@ -55,9 +56,9 @@ class Project extends Model
     /**
      * The accessor of the `is_overdue` attribute.
      *
-     * @var string[]
+     * @var bool
      */
-    public function getIsOverdueAttribute()
+    public function getIsOverdueAttribute(): bool
     {
         if (!$this->due_date)
         {
@@ -72,7 +73,7 @@ class Project extends Model
      *
      * @return HasMany
      */
-    public function tasks()
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
     }
@@ -82,7 +83,7 @@ class Project extends Model
      *
      * @return BelongsToMany
      */
-    public function assignees()
+    public function assignees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'assignee_project');
     }
@@ -94,7 +95,7 @@ class Project extends Model
      *
      * @return Builder
      */
-    public function scopeActive(Builder $builder)
+    public function scopeActive(Builder $builder): Builder
     {
         return $builder->whereNull('archived_at');
     }
@@ -106,7 +107,7 @@ class Project extends Model
      *
      * @return Builder
      */
-    public function scopeArchived(Builder $builder)
+    public function scopeArchived(Builder $builder): Builder
     {
         return $builder->whereNotNull('archived_at');
     }
@@ -118,7 +119,7 @@ class Project extends Model
      *
      * @return Builder
      */
-    public function scopeOverdue(Builder $builder)
+    public function scopeOverdue(Builder $builder): Builder
     {
         return $builder->where('due_date', '<=', now());
     }
@@ -131,7 +132,7 @@ class Project extends Model
      *
      * @return Builder
      */
-    public function scopeAccessibleBy(Builder $builder, User $user)
+    public function scopeAccessibleBy(Builder $builder, User $user): Builder
     {
         if (in_array($user->role, [UserRole::Owner, UserRole::Admin]))
         {
@@ -165,7 +166,7 @@ class Project extends Model
      *
      * @return array
      */
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
         return [
             'id' => $this->id,
@@ -175,6 +176,16 @@ class Project extends Model
             'assignees' => $this->assignees()->pluck('name')->toArray(),
             'created_at' => $this->created_at->timestamp,
         ];
+    }
+
+    /**
+     * Modify the query used to retrieve models when making all of the models searchable.
+	 * 
+	 * @param Builder $builder
+     */
+    protected function makeAllSearchableUsing(Builder $builder): Builder
+    {
+        return $builder->with('assignees');
     }
 
     /**
@@ -245,5 +256,22 @@ class Project extends Model
         $this->tasks()->restore();
 
         return $this->parentRestore();
+    }
+
+    /**
+     * Returns whether the project is accessible by the given user.
+     *
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function isAccessibleBy(User $user): bool
+    {
+        if (in_array($user->role, [UserRole::Owner, UserRole::Admin]))
+        {
+            return true;
+        }
+
+        return $this->assignees()->where('user_id', $user->id)->exists();
     }
 }

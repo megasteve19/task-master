@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,6 +22,16 @@ class DashboardController extends Controller
             'taskCount' => $request->user()
                 ->tasks()
                 ->count(),
+
+            'projects' => $request->user()
+                ->projects()
+                ->withCount([
+                    'tasks' => fn (Builder $builder) => $builder->assignedTo($request->user())->active(),
+                ])
+                ->with('assignees')
+                ->active()
+                ->orderByDesc('due_date')
+                ->get(),
         ]);
     }
 }

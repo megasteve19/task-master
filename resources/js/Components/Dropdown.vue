@@ -1,6 +1,6 @@
 <template>
 	<div class="relative">
-		<div @click="open = !open">
+		<div @click="open = !open" :class="triggerClasses">
 			<slot name="trigger" />
 		</div>
 
@@ -48,6 +48,10 @@ const props = defineProps({
 	contentClasses: {
 		type: String,
 		default: 'py-2 bg-white',
+	},
+	triggerClasses: {
+		type: String,
+		default: '',
 	},
 	closeOnContentClick: {
 		type: Boolean,

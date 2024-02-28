@@ -56,6 +56,7 @@
 			<!-- Project Cards -->
 			<ProjectCard
 				v-for="project in projects"
+				crud
 				:key="project.id"
 				:project="project"
 				@edit="project => projectFormModal.openModal(project)"

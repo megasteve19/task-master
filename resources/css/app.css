@@ -30,6 +30,14 @@ h6 {
 	@apply text-sm font-bold;
 }
 
+.task-dragging {
+	@apply border-2 border-blue-200 border-dashed bg-blue-50;
+}
+
+.task-swapping {
+	@apply border-2 border-yellow-200 border-dashed bg-yellow-50;
+}
+
 @keyframes animate-pop {
 	0% {
 		scale: 0.75;

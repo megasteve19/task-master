@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 
 return [
@@ -231,6 +232,61 @@ return [
                             'type' => 'string',
                             'optional' => true,
 
+                        ],
+                        [
+                            'name' => 'assignees',
+                            'type' => 'string[]',
+                            'optional' => true,
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int32',
+                        ],
+                        [
+                            'name' => '__soft_deleted',
+                            'type' => 'int32',
+                            'optional' => true,
+                        ],
+                    ],
+                    'default_sorting_field' => 'created_at',
+                ],
+                'search-parameters' => [
+                    'query_by' => 'name,description,assignees,due_date',
+                ],
+            ],
+
+            Task::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                            'optional' => true,
+                        ],
+                        [
+                            'name' => 'name',
+                            'type' => 'string',
+                            'optional' => true,
+                        ],
+                        [
+                            'name' => 'description',
+                            'type' => 'string',
+                            'optional' => true,
+                        ],
+						[
+							'name' => 'project',
+							'type' => 'string',
+							'optional' => true,
+						],
+                        [
+                            'name' => 'status',
+                            'type' => 'string',
+                            'optional' => true,
+                        ],
+                        [
+                            'name' => 'due_date',
+                            'type' => 'string',
+                            'optional' => true,
                         ],
                         [
                             'name' => 'assignees',

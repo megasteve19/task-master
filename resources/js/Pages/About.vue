@@ -11,6 +11,9 @@
 					<li>Vue 3</li>
 					<li>Tailwind CSS</li>
 					<li>Inertia.js</li>
+					<li>Sortable.js</li>
+					<li>Bootstrap Icons</li>
+					<li>Feather Icons</li>
 				</ul>
 			</Card>
 
@@ -20,6 +23,7 @@
 					<li>Laravel 10</li>
 					<li>Laravel Scout</li>
 					<li>Laravel Octane</li>
+					<li>Laravel Prompts</li>
 					<li>Typesense</li>
 					<li>Swoole</li>
 				</ul>

@@ -1,13 +1,14 @@
 <template>
-	<button
+	<Link
 		:class="classes"
 		class="px-4 py-2 text-sm rounded-lg"
 	>
-		<slot />
-	</button>
+	<slot />
+	</Link>
 </template>
 
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps({

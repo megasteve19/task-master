@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Project;
+use App\Models\Task;
 use Illuminate\Console\Command;
 
 class SandboxCommand extends Command
@@ -26,7 +27,10 @@ class SandboxCommand extends Command
      */
     public function handle()
     {
-        Project::withTrashed()->whereId('01hqgnkesgvzp6qaywr8xm369e')->forceDelete();
-        // Project::withTrashed()->find('01hqgnkesgvzp6qaywr8xm369e')->forceDelete();
+        Project::factory(100)
+            ->has(Task::factory()
+                ->todo()
+                ->count(10))
+            ->create();
     }
 }

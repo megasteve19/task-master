@@ -4,19 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProjectArchiveRequest;
 use App\Http\Requests\ProjectDestroyRequest;
+use App\Http\Requests\ProjectIndexRequest;
 use App\Http\Requests\ProjectPermanentlyDelete as ProjectPermanentlyDestroy;
 use App\Http\Requests\ProjectRestoreArchived as ProjectRestoreArchivedRequest;
 use App\Http\Requests\ProjectRestoreDeleted;
+use App\Http\Requests\ProjectShowRequest;
 use App\Http\Requests\ProjectStoreRequest;
 use App\Http\Requests\ProjectUpdateRequest;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
-    public function index(Request $request)
+    public function index(ProjectIndexRequest $request)
     {
         $status = $request->input('filters.status', 'active');
 
@@ -30,11 +31,16 @@ class ProjectController extends Controller
                 )
                 ->when(
                     $request->filled('filters.assignees'),
-                    fn (Builder $builder) => $builder->assignedTo(...explode(',', $request->input('filters.assignees')))
+                    fn (Builder $builder) => $builder->assignedTo(...$request->input('filters.assignees'))
                 )
                 ->when($status === 'active', fn (Builder $builder) => $builder->active()->orderByDesc('due_date'))
                 ->when($status === 'archived', fn (Builder $builder) => $builder->archived()->orderByDesc('archived_at'))
-                ->when($status === 'trashed', fn (Builder $builder) => $builder->onlyTrashed()->orderByDesc('deleted_at'))
+                ->when(
+                    $status === 'trashed',
+                    fn (Builder $builder) => $builder->onlyTrashed()
+                        ->orderByDesc('deleted_at')
+                        ->withCount(['tasks' => fn (Builder $builder) => $builder->withTrashed()])
+                )
                 ->get(),
 
             'filters' => [
@@ -44,10 +50,17 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function show(Project $project)
+    public function show(ProjectShowRequest $request, Project $project)
     {
         return Inertia::render('Projects/Show', [
-            'project' => $project->load('assignees', 'tasks', 'tasks.assignees'),
+            'project' => $project
+                ->load('assignees')
+                ->loadCount([
+                    'assignees',
+                    'tasks' => fn (Builder $builder) => $builder->active(),
+                    'tasks as completed_tasks_count' => fn (Builder $builder) => $builder->active()->completed(),
+                    'tasks as assignee_tasks_count' => fn (Builder $builder) => $builder->active()->assignedTo($request->user()),
+                ]),
         ]);
     }
 

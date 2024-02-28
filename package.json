@@ -21,6 +21,7 @@
     "@types/lodash": "^4.14.202",
     "chokidar": "^3.6.0",
     "lodash": "^4.17.21",
+    "sortablejs": "^1.15.2",
     "ziggy-js": "^2.0.3"
   }
 }

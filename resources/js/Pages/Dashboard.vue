@@ -2,7 +2,7 @@
 	<Head title="Dashboard" />
 
 	<AppLayout :title="welcomeMessage">
-		<section class="grid grid-cols-2 gap-4">
+		<section class="grid grid-cols-2 gap-4 mb-6">
 
 			<Widget
 				gradient="from-violet-500 to-violet-300"
@@ -26,6 +26,35 @@
 				description="Total count of tasks that you have been assigned to."
 			/>
 		</section>
+
+		<section class="flex flex-col gap-4">
+			<div>
+				<h3 class="mb2-">Your Projects</h3>
+				<p class="text-gray-400">This is a list of all the projects that you have been assigned to, you may hop into
+					any of them to see
+					the details and tasks.</p>
+			</div>
+
+			<!-- Project Cards -->
+			<ProjectCard
+				v-if="projects.length !== 0"
+				v-for="project in projects"
+				:key="project.id"
+				:project="project"
+				@edit="project => projectFormModal.openModal(project)"
+				@archive="project => archiveProject.openModal(project)"
+				@restore-archived="project => restoreArchivedProject.openModal(project)"
+				@delete="project => deleteProject.openModal(project)"
+				@restore-deleted="project => restoreDeletedProject.openModal(project)"
+				@permanently-delete="project => permanentlyDeleteProject.openModal(project)"
+			/>
+
+			<p
+				class="mt-4 text-center text-gray-400"
+				v-else
+			>No projects found.</p>
+		</section>
+
 	</AppLayout>
 </template>
 
@@ -34,10 +63,12 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Widget from '@/Components/Widget.vue';
+import ProjectCard from '@/Components/ProjectCard.vue';
 
 const props = defineProps({
 	projectCount: Number,
 	taskCount: Number,
+	projects: Array,
 });
 
 const page = usePage();

@@ -15,13 +15,6 @@
 		</SidebarItem>
 
 		<SidebarItem
-			route="tasks.index"
-			label="Tasks"
-		>
-			<CardListIcon class="w-6 h-6" />
-		</SidebarItem>
-
-		<SidebarItem
 			route="users.index"
 			label="Users"
 		>

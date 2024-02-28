@@ -5,6 +5,9 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from 'ziggy-js';
+import { Sortable, Swap } from 'sortablejs/modular/sortable.core.esm';
+
+Sortable.mount(new Swap());
 
 const appName = 'Task Master';
 

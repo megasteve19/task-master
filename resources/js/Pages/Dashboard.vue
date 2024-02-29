@@ -84,7 +84,7 @@ const page = usePage();
  */
 const welcomeMessage = computed(() => {
 	const currentHour = new Date().getHours();
-	const userName = page.props.auth.user.name.substring(0, page.props.auth.user.name.lastIndexOf(' '));
+	const userName = page.props.auth.user.name;
 
 	switch (true) {
 		case currentHour < 12 && currentHour >= 6:

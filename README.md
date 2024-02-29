@@ -1,66 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Task Master
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## How to run the app
 
-## About Laravel
+This project has `laravel/sail` installed, so if you have Docker installed, you can run the app without much hassle.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+First, clone the repository and navigate to the project directory.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```bash
+git clone git@github.com:megasteve19/task-master.git && cd task-master
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Next, copy the `.env.sail` file to `.env`:
 
-## Learning Laravel
+```bash
+cp .env.sail .env
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Then, run following command to install the dependencies:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Finally, run the following command to start the app:
 
-## Laravel Sponsors
+```bash
+./vendor/bin/sail up
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Now you can head over to [http://localhost](http://localhost) to view the app.
 
-### Premium Partners
+For further instructions, please refer to the [Laravel Sail documentation](https://laravel.com/docs/10.x/sail).
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Migration
 
-## Contributing
+For testing purposes, you can use the following command to migrate and seed the database:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
 
-## Code of Conduct
+Default credentials for the seeded user are:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Email: `owner@example.com`
+- Password: `password`
 
-## Security Vulnerabilities
+## Commands
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+There's few useful commands, since `users` page is not implemented in the app, instead you can use the following commands to manage users:
 
-## License
+- `./vendor/bin/sail artisan users:list` - List all users
+- `./vendor/bin/sail artisan users:create` - Create a new user
+- `./vendor/bin/sail artisan users:update` - Update a user
+- `./vendor/bin/sail artisan users:delete` - Delete a user
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Other commands are;
+
+- `./vendor/bin/sail artisan projects:list` - List all projects
+- `./vendor/bin/sail artisan tasks:list` - List all tasks
+
+These are already implemented in the app, but they exists as commands for testing purposes.
+
+For development purposes, this project uses `barryvdh/laravel-ide-helper` package. You can generate the IDE helper files by running the following command:
+
+```bash
+./vendor/bin/sail composer ide-helper
+```
+
+This will genereate all possible helper files for the project.
+
+## How to use the app
+
+If you need help about how to use the app, please refer to [this video](https://youtu.be/).

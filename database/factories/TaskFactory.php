@@ -69,4 +69,18 @@ class TaskFactory extends Factory
             ];
         });
     }
+
+    /**
+     * Indicate that the task is not archived.
+     *
+     * @return TaskFactory
+     */
+    public function active(): TaskFactory
+    {
+        return $this->state(function(array $attributes) {
+            return [
+                'archived_at' => null,
+            ];
+        });
+    }
 }

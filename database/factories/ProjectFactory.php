@@ -25,43 +25,15 @@ class ProjectFactory extends Factory
     }
 
     /**
-     * Indicate that the project is due today.
+     * Indicate that the project is active.
      *
-     * @return ProjectFactory
+     * @return Factory
      */
-    public function dueToday(): ProjectFactory
+    public function active(): Factory
     {
         return $this->state(function(array $attributes) {
             return [
-                'due_date' => now(),
-            ];
-        });
-    }
-
-    /**
-     * Indicate that the project is due tomorrow.
-     *
-     * @return ProjectFactory
-     */
-    public function dueTomorrow(): ProjectFactory
-    {
-        return $this->state(function(array $attributes) {
-            return [
-                'due_date' => now()->addDay(),
-            ];
-        });
-    }
-
-    /**
-     * Indicate that the project is due in 7 days.
-     *
-     * @return ProjectFactory
-     */
-    public function dueInAWeek(): ProjectFactory
-    {
-        return $this->state(function(array $attributes) {
-            return [
-                'due_date' => now()->addWeek(),
+                'archived_at' => null,
             ];
         });
     }

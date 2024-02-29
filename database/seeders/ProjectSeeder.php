@@ -13,13 +13,13 @@ class ProjectSeeder extends Seeder
      */
     public function run(): void
     {
-        Project::factory()
-            ->count(2)
-            ->has(Task::factory()
-                ->count(10)
-                ->todo()
-                ->hasAssignees(3))
-			->hasAssignees(3)
-            ->create();
+        // Project::factory()
+        //     ->count(1)
+        //     ->has(Task::factory()
+        //         ->count(10)
+        //         ->todo()
+        //         ->hasAssignees(3))
+		// 	->hasAssignees(3)
+        //     ->create();
     }
 }

@@ -15,8 +15,8 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::factory([
-            'name' => 'Abdulkadir Cemiloğlu',
-            'email' => 'kadir.cemiloglu1@gmail.com',
+            'name' => 'Owner',
+            'email' => 'owner@example.com',
         ])
             ->owner()
             ->has(
@@ -25,8 +25,10 @@ class UserSeeder extends Seeder
             )
             ->has(
                 Project::factory()
+                    ->active()
                     ->has(
                         Task::factory()
+							->active()
                             ->count(3)
                     )
             )

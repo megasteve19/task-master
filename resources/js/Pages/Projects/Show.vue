@@ -30,7 +30,7 @@
 		<section class="grid grid-cols-2 gap-4 mb-4">
 			<Widget
 				header="Due Date"
-				:value="new Date(project.due_date).toLocaleDateString()"
+				:value="project.due_date ? new Date(project.due_date).toLocaleDateString() : 'N/A'"
 				description="The date when the project is due."
 				:gradient="project.is_overdue ? 'from-orange-500 to-orange-300' : 'from-emerald-500 to-emerald-300'"
 			/>

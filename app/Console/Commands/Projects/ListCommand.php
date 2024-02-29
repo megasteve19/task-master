@@ -6,6 +6,8 @@ use App\Models\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
+use function Laravel\Prompts\table;
+
 class ListCommand extends Command
 {
     /**
@@ -34,7 +36,7 @@ class ListCommand extends Command
             ->latest()
             ->get();
 
-        $this->table(
+        table(
             ['ID', 'Name', 'Description', 'Due Date', 'Tasks', 'Assignees', 'Archived', 'Trashed'],
             $projects->map(function(Project $project) {
                 return [

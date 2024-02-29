@@ -6,6 +6,8 @@ use App\Models\Task;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
+use function Laravel\Prompts\table;
+
 class ListCommand extends Command
 {
     /**
@@ -29,7 +31,7 @@ class ListCommand extends Command
     {
         $tasks = Task::with('project', 'assignees')->get();
 
-        $this->table(
+        table(
             ['ID', 'Name', 'Description', 'Status', 'Due Date', 'Project', 'Assignees'],
             $tasks->map(function(Task $task) {
                 return [

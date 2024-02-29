@@ -5,6 +5,8 @@ namespace App\Console\Commands\Users;
 use App\Models\User;
 use Illuminate\Console\Command;
 
+use function Laravel\Prompts\table;
+
 class ListCommand extends Command
 {
     /**
@@ -28,7 +30,7 @@ class ListCommand extends Command
     {
         $users = User::withCount('projects', 'tasks')->get();
 
-        $this->table(
+        table(
             ['ID', 'Name', 'Email', 'Role', 'Projects', 'Tasks'],
             $users->map(function(User $user) {
                 return [

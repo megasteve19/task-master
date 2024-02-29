@@ -13,11 +13,20 @@ use App\Http\Requests\ProjectStoreRequest;
 use App\Http\Requests\ProjectUpdateRequest;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ProjectController extends Controller
 {
-    public function index(ProjectIndexRequest $request)
+    /**
+     * Lists projects.
+     *
+     * @param ProjectIndexRequest $request
+     *
+     * @return Response
+     */
+    public function index(ProjectIndexRequest $request): Response
     {
         $status = $request->input('filters.status', 'active');
 
@@ -50,7 +59,15 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function show(ProjectShowRequest $request, Project $project)
+    /**
+     * Shows a project.
+     *
+     * @param ProjectShowRequest $request
+     * @param Project $project
+     *
+     * @return Response
+     */
+    public function show(ProjectShowRequest $request, Project $project): Response
     {
         return Inertia::render('Projects/Show', [
             'project' => $project
@@ -64,7 +81,14 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function store(ProjectStoreRequest $request)
+    /**
+     * Stores a project.
+     *
+     * @param ProjectStoreRequest $request
+     *
+     * @return RedirectResponse
+     */
+    public function store(ProjectStoreRequest $request): RedirectResponse
     {
         $project = Project::create($request->only('name', 'description', 'due_date'));
 
@@ -73,7 +97,15 @@ class ProjectController extends Controller
         return redirect()->back();
     }
 
-    public function update(ProjectUpdateRequest $request, Project $project)
+    /**
+     * Updates a project.
+     *
+     * @param ProjectUpdateRequest $request
+     * @param Project $project
+     *
+     * @return RedirectResponse
+     */
+    public function update(ProjectUpdateRequest $request, Project $project): RedirectResponse
     {
         $project->update($request->only('name', 'description', 'due_date'));
 
@@ -82,35 +114,75 @@ class ProjectController extends Controller
         return redirect()->back();
     }
 
-    public function archive(ProjectArchiveRequest $request, Project $project)
+    /**
+     * Archives a project.
+     *
+     * @param ProjectArchiveRequest $request
+     * @param Project $project
+     *
+     * @return RedirectResponse
+     */
+    public function archive(ProjectArchiveRequest $request, Project $project): RedirectResponse
     {
         $project->archive();
 
         return redirect()->back();
     }
 
-    public function restoreArchive(ProjectRestoreArchivedRequest $request, Project $project)
+    /**
+     * Restores an archived project.
+     *
+     * @param ProjectRestoreArchivedRequest $request
+     * @param Project $project
+     *
+     * @return RedirectResponse
+     */
+    public function restoreArchive(ProjectRestoreArchivedRequest $request, Project $project): RedirectResponse
     {
         $project->restoreFromArchive();
 
         return redirect()->back();
     }
 
-    public function destroy(ProjectDestroyRequest $request, Project $project)
+    /**
+     * Deletes a project.
+     *
+     * @param ProjectDestroyRequest $request
+     * @param Project $project
+     *
+     * @return RedirectResponse
+     */
+    public function destroy(ProjectDestroyRequest $request, Project $project): RedirectResponse
     {
         $project->delete();
 
         return redirect()->back();
     }
 
-    public function restoreDelete(ProjectRestoreDeleted $request, Project $project)
+    /**
+     * Restores a deleted project.
+     *
+     * @param ProjectRestoreDeleted $request
+     * @param Project $project
+     *
+     * @return RedirectResponse
+     */
+    public function restoreDelete(ProjectRestoreDeleted $request, Project $project): RedirectResponse
     {
         $project->restore();
 
         return redirect()->back();
     }
 
-    public function destroyPermanently(ProjectPermanentlyDestroy $request, Project $project)
+	/**
+	 * Permanently deletes a project.
+	 *
+	 * @param ProjectPermanentlyDestroy $request
+	 * @param Project $project
+	 *
+	 * @return RedirectResponse
+	 */
+    public function destroyPermanently(ProjectPermanentlyDestroy $request, Project $project): RedirectResponse
     {
         $project->forceDelete();
 

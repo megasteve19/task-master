@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
+// ** Login routes
 Route::middleware('guest')->group(function() {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
@@ -13,8 +13,10 @@ Route::middleware('guest')->group(function() {
 });
 
 Route::middleware('auth')->group(function() {
+    // ** Password update route
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
+    // ** Logout route
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

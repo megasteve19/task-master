@@ -11,6 +11,6 @@ class ProjectTaskPermanentDestroyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->route('project')->isAccessibleBy($this->user());
+        return $this->route('project')->isAccessibleBy($this->user()) && ! $this->route('project')->archived_at;
     }
 }

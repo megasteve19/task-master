@@ -27,7 +27,10 @@
 				</div>
 			</div>
 
-			<div class="flex items-center gap-2">
+			<div
+				v-if="!project.archived_at"
+				class="flex items-center gap-2"
+			>
 				<!-- Dropdown Actions -->
 				<Dropdown trigger-classes="flex justify-center items-center">
 					<template #trigger>
@@ -114,7 +117,7 @@
 
 			<!-- Move to Dropdown -->
 			<Dropdown
-				v-if="!task.archived_at && !task.deleted_at"
+				v-if="!task.archived_at && !task.deleted_at && !project.archived_at"
 				align="left"
 			>
 				<template #trigger>
@@ -179,6 +182,10 @@ import ArrowRepeatIcon from '@/Components/Icons/ArrowRepeat.vue';
 import CheckAllIcon from '@/Components/Icons/CheckAll.vue';
 
 const props = defineProps({
+	project: {
+		type: Object,
+		required: true,
+	},
 	task: {
 		type: Object,
 		required: true,

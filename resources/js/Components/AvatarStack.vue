@@ -82,7 +82,6 @@ import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { ref } from 'vue';
 import { reactive } from 'vue';
-import { onMounted } from 'vue';
 import { watch } from 'vue';
 
 const props = defineProps({
@@ -93,22 +92,38 @@ const props = defineProps({
 	},
 });
 
+/**
+ * The users that are selected.
+ */
 const users = defineModel({
 	required: false,
 	type: Array,
 	default: [],
 });
 
+/**
+ * Ref of the dropdown.
+ */
 const dropdown = ref(null);
 
+/**
+ * The search state.
+ */
 const search = reactive({
+	/**
+	 * The user query.
+	 */
 	query: '',
 
+	/**
+	 * The search results.
+	 */
 	results: [],
 
+	/**
+	 * Perform the search.
+	 */
 	async perform() {
-		console.log(route('api.search.users'));
-
 		const results = await fetch(route('api.search.users', {
 			query: this.query,
 			except: users.value.map((user) => user.id),
@@ -118,6 +133,9 @@ const search = reactive({
 		this.results = (await results.json()).data;
 	},
 
+	/**
+	 * Add a user to the selected users.
+	 */
 	add(user) {
 		users.value.push(user);
 		this.query = '';
@@ -125,11 +143,17 @@ const search = reactive({
 		dropdown.value.close();
 	},
 
+	/**
+	 * Remove a user from the selected users.
+	 */
 	remove(user) {
 		users.value = users.value.filter((u) => u.id !== user.id);
 	},
 });
 
+/**
+ * Watch the query and perform the search.
+ */
 watch(() => search.query, () => {
 	if (search.query === '') {
 		search.results = [];

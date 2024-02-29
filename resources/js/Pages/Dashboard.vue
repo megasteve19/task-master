@@ -2,16 +2,19 @@
 	<Head title="Dashboard" />
 
 	<AppLayout :title="welcomeMessage">
+		<!-- Widgets -->
 		<section class="grid grid-cols-2 gap-4 mb-6">
 
+			<!-- Time Widget -->
 			<Widget
 				gradient="from-violet-500 to-violet-300"
 				header="Time"
-				:value="time"
+				:value="time.value"
 				description="Current time."
 				class="col-span-2"
 			/>
 
+			<!-- Project Count Widget -->
 			<Widget
 				gradient="from-rose-500 to-rose-300"
 				header="Projects"
@@ -19,6 +22,7 @@
 				description="Total count of projects that you have been assigned to."
 			/>
 
+			<!-- Task Count Widget -->
 			<Widget
 				gradient="from-sky-500 to-sky-300"
 				header="Tasks"
@@ -27,6 +31,7 @@
 			/>
 		</section>
 
+		<!-- Projects -->
 		<section class="flex flex-col gap-4">
 			<div>
 				<h3 class="mb2-">Your Projects</h3>
@@ -54,7 +59,6 @@
 				v-else
 			>No projects found.</p>
 		</section>
-
 	</AppLayout>
 </template>
 
@@ -64,6 +68,8 @@ import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Widget from '@/Components/Widget.vue';
 import ProjectCard from '@/Components/ProjectCard.vue';
+import { reactive } from 'vue';
+import { onMounted, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
 	projectCount: Number,
@@ -73,27 +79,60 @@ const props = defineProps({
 
 const page = usePage();
 
+/**
+ * Welcome message.
+ */
 const welcomeMessage = computed(() => {
 	const currentHour = new Date().getHours();
-	const userName = (() => {
-		const popped = page.props.auth.user.name.split(' ');
-		popped.pop();
-		return popped.join(' ');
-	})();
+	const userName = page.props.auth.user.name.substring(0, page.props.auth.user.name.lastIndexOf(' '));
 
-	if (currentHour < 12 && currentHour >= 6) {
-		return `Good Morning, ${userName} ☀️`;
-	} else if (currentHour < 18 && currentHour >= 12) {
-		return `Good Afternoon, ${userName} 🌅`;
-	} else if (currentHour < 22 && currentHour >= 18) {
-		return `Good Evening, ${userName} 🌆`;
-	} else {
-		return `Good Night, ${userName} 🌙`;
+	switch (true) {
+		case currentHour < 12 && currentHour >= 6:
+			return `Good Morning, ${userName} ☀️`;
+		case currentHour < 18 && currentHour >= 12:
+			return `Good Afternoon, ${userName} 🌅`;
+		case currentHour < 22 && currentHour >= 18:
+			return `Good Evening, ${userName} 🌆`;
+		case currentHour < 6:
+			return `Good Night, ${userName} 🌙`;
 	}
 });
 
-const time = computed(() => {
-	const now = new Date();
-	return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+/**
+ * Time state.
+ */
+const time = reactive({
+	/**
+	 * The interval, just need to keep track of it so we can clear it when the component is unmounted.
+	 */
+	interval: null,
+
+	/**
+	 * The current time.
+	 */
+	value: '',
+
+	/**
+	 * Updates the time.
+	 */
+	update() {
+		const now = new Date();
+		this.value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+	},
+});
+
+/**
+ * Updates the time every second.
+ */
+onMounted(() => {
+	time.update();
+	time.interval = setInterval(() => time.update(), 1000);
+});
+
+/**
+ * Clears the interval when the component is unmounted.
+ */
+onBeforeUnmount(() => {
+	clearInterval(time.interval);
 });
 </script>

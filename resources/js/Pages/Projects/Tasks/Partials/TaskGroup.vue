@@ -10,6 +10,7 @@
 			<TaskCard
 				v-for="task in tasks"
 				:key="task.id"
+				:project="project"
 				:task="task"
 				@edit="(task) => emit('edit', task)"
 				@status-updated="(task, status) => emit('status-updated', task, status)"
@@ -33,7 +34,7 @@ import { router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 
 import TaskCard from '@/Components/TaskCard.vue';
-import { onBeforeUnmount, onUnmounted, ref, watch } from 'vue';
+import { onBeforeUnmount, ref, watch } from 'vue';
 
 const props = defineProps({
 	title: String,
@@ -56,9 +57,9 @@ onBeforeUnmount(() => {
 });
 
 watch(tasksRef, () => {
-	if (!tasksRef.value) {
+	if (tasksRef.value === null) {
 		sortableRef.value?.destroy();
-
+		sortableRef.value = null;
 		return;
 	}
 

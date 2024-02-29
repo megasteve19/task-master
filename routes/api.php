@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function() {
     Route::prefix('search')->name('search.')->controller(SearchController::class)->group(function() {
+        Route::get('/global', 'global')->name('global');
         Route::get('users', 'users')->name('users');
     });
 });

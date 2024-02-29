@@ -37,7 +37,6 @@
 				</div>
 				<div class="flex gap-4">
 					<Button
-						v-if="!props.project.archived_at"
 						:variant="filters.status === 'active' ? 'success' : 'default'"
 						@click="filters.status = 'active'"
 					>
@@ -50,7 +49,6 @@
 						Archived
 					</Button>
 					<Button
-						v-if="!props.project.archived_at"
 						:variant="filters.status === 'trashed' ? 'danger' : 'default'"
 						@click="filters.status = 'trashed'"
 					>
@@ -101,12 +99,12 @@
 		>
 			<div
 				v-if="props.tasks.length > 0"
-				ref="completedList"
 				class="grid grid-cols-1 gap-4"
 			>
 				<TaskCard
 					v-for="task in props.tasks"
 					:key="task.id"
+					:project="props.project"
 					:task="task"
 					@restore-deleted="(task) => restoreDeletedTask.openModal(task)"
 					@permanently-delete="(task) => permanentlyDeleteTask.openModal(task)"
@@ -317,25 +315,27 @@ const props = defineProps({
 	filters: Object,
 });
 
+// I know, it is better to sort the tasks in the backend,
+// but since we grouped them in frontend, we need to sort them here.
+const groupByStatus = (tasks, status) => {
+	return tasks.filter((task) => task.status === status).sort((a, b) => b.priority - a.priority);
+};
+
+/**
+ * Grouped tasks.
+ */
+const todo = computed(() => groupByStatus(props.tasks, 'todo'));
+const inProgress = computed(() => groupByStatus(props.tasks, 'in_progress'));
+const completed = computed(() => groupByStatus(props.tasks, 'completed'));
+
+/**
+ * Filters.
+ */
 const filters = reactive({
 	search: props.filters.search || '',
 	assignees: [],
 	status: props.filters.status,
 });
-
-// I know, it is better to sort the tasks in the backend,
-// but since we grouped them in frontend, we need to sort them here.
-const todo = computed(() => props.tasks.filter((task) => task.status === 'todo').sort((a, b) => b.priority - a.priority));
-const todoList = ref();
-const todoListSortable = ref();
-
-const inProgress = computed(() => props.tasks.filter((task) => task.status === 'in_progress').sort((a, b) => b.priority - a.priority));
-const inProgressList = ref();
-const inProgressListSortable = ref();
-
-const completed = computed(() => props.tasks.filter((task) => task.status === 'completed').sort((a, b) => b.priority - a.priority));
-const completedList = ref();
-const completedListSortable = ref();
 
 watch(filters, () => {
 	router.reload({
@@ -349,6 +349,12 @@ watch(filters, () => {
 	});
 }, { deep: true });
 
+/**
+ * Updates the task status.
+ * 
+ * @param {Object} task 
+ * @param {String} status 
+ */
 const taskUpdateStatus = (task, status) => {
 	router.put(
 		route('projects.tasks.update-status', [props.project, task.id]),
@@ -360,6 +366,9 @@ const taskUpdateStatus = (task, status) => {
 	);
 };
 
+/**
+ * Task form.
+ */
 const taskForm = useForm({
 	id: '',
 	name: '',
@@ -368,6 +377,9 @@ const taskForm = useForm({
 	assignees: [],
 });
 
+/**
+ * Task form modal.
+ */
 const taskFormModal = reactive({
 	showModal: false,
 	isEditing: false,
@@ -430,6 +442,9 @@ const taskFormModal = reactive({
 	},
 });
 
+/**
+ * Delete task modal.
+ */
 const deleteTask = reactive({
 	showModal: false,
 	taskId: null,
@@ -462,6 +477,9 @@ const deleteTask = reactive({
 	},
 });
 
+/**
+ * Restore deleted task modal.
+ */
 const restoreDeletedTask = reactive({
 	showModal: false,
 	taskId: null,
@@ -491,6 +509,9 @@ const restoreDeletedTask = reactive({
 	},
 });
 
+/**
+ * Permanently delete task modal.
+ */
 const permanentlyDeleteTask = reactive({
 	showModal: false,
 	taskId: null,
@@ -522,6 +543,9 @@ const permanentlyDeleteTask = reactive({
 	},
 });
 
+/**
+ * Archive task modal.
+ */
 const archiveTask = reactive({
 	showModal: false,
 	taskId: null,
@@ -551,6 +575,9 @@ const archiveTask = reactive({
 	},
 });
 
+/**
+ * Restore archived task modal.
+ */
 const restoreArchivedTask = reactive({
 	showModal: false,
 	taskId: null,

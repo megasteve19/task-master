@@ -1,12 +1,8 @@
 <template>
-	<header class="w-full h-16 bg-white shadow-sm">
+	<header class="relative z-10 w-full h-16 bg-white shadow-sm">
 		<div class="flex h-full max-w-screen-md gap-4 px-4 mx-auto">
 			<div class="flex items-center w-full">
-				<TextInput
-					class="w-full h-10"
-					placeholder="Search for projects or tasks..."
-					v-model="search"
-				/>
+				<GlobalSearch />
 			</div>
 			<div class="flex items-center justify-end">
 				<Dropdown>
@@ -59,13 +55,17 @@
 </template>
 
 <script setup>
-import Sidebar from '@/Components/Sidebar.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import TextInput from '@/Components/TextInput.vue';
+import { route } from 'ziggy-js';
+
+// Components
+import Sidebar from '@/Components/Sidebar.vue';
+import GlobalSearch from '@/Components/GlobalSearch.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import { route } from 'ziggy-js';
+
+// Icons
 import LogoutIcon from '@/Components/Icons/Logout.vue';
 import PersonIcon from '@/Components/Icons/Person.vue';
 

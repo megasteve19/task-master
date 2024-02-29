@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\TaskStatus;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -14,7 +13,7 @@ class ProjectTaskStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->route('project')->isAccessibleBy($this->user());
+        return $this->route('project')->isAccessibleBy($this->user()) && !$this->route('project')->archived_at;
     }
 
     /**

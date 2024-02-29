@@ -3,21 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskStatus;
+use App\Http\Requests\ProjectTaskArchiveRequest;
+use App\Http\Requests\ProjectTaskDestroyRequest;
 use App\Http\Requests\ProjectTaskIndexRequest;
+use App\Http\Requests\ProjectTaskPermanentDestroyRequest;
+use App\Http\Requests\ProjectTaskRestoreArchivedRequest;
+use App\Http\Requests\ProjectTaskRestoreDeletedRequest;
 use App\Http\Requests\ProjectTaskStoreRequest;
 use App\Http\Requests\ProjectTaskSwapPriorityRequest;
+use App\Http\Requests\ProjectTaskUpdateRequest;
 use App\Http\Requests\ProjectTaskUpdateStatusRequest;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ProjectTaskController extends Controller
 {
-    public function index(ProjectTaskIndexRequest $request, Project $project)
+    /**
+     * Lists tasks for a project.
+     *
+     * @param ProjectTaskIndexRequest $request
+     * @param Project $project
+     *
+     * @return Response
+     */
+    public function index(ProjectTaskIndexRequest $request, Project $project): Response
     {
-        $status = $project->archived_at ? 'archived' : $request->input('filters.status', 'active');
+        $status = $request->input('filters.status', 'active');
 
         return Inertia::render('Projects/Tasks/Index', [
             'project' => $project,
@@ -47,7 +62,15 @@ class ProjectTaskController extends Controller
         ]);
     }
 
-    public function store(ProjectTaskStoreRequest $request, Project $project)
+    /**
+     * Stores a task for a project.
+     *
+     * @param ProjectTaskStoreRequest $request
+     * @param Project $project
+     *
+     * @return RedirectResponse
+     */
+    public function store(ProjectTaskStoreRequest $request, Project $project): RedirectResponse
     {
         $task = $project->tasks()->create([
             ...$request->except('assignees'),
@@ -56,68 +79,149 @@ class ProjectTaskController extends Controller
 
         $task->assignees()->sync($request->assignees);
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-    public function update(Request $request, Project $project, Task $task)
+    /**
+     * Updates a task for a project.
+     *
+     * @param ProjectTaskUpdateRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function update(ProjectTaskUpdateRequest $request, Project $project, Task $task): RedirectResponse
     {
         $task->update($request->except('assignees'));
 
         $task->assignees()->sync($request->assignees);
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-    public function destroy(Project $project, Task $task)
+    /**
+     * Destroys a task for a project.
+     *
+     * @param ProjectTaskDestroyRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function destroy(ProjectTaskDestroyRequest $request, Project $project, Task $task): RedirectResponse
     {
         $task->delete();
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-	public function destroyPermanently(Project $project, Task $task)
-	{
-		$task->forceDelete();
+    /**
+     * Permanently destroys a task for a project.
+     *
+     * @param ProjectTaskPermanentDestroyRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function destroyPermanently(ProjectTaskPermanentDestroyRequest $request, Project $project, Task $task): RedirectResponse
+    {
+        $task->forceDelete();
 
-		return redirect()->route('projects.tasks.index', $project);
-	}
+        return redirect()->back();
+    }
 
-    public function restoreDelete(Project $project, Task $task)
+    /**
+     * Restores a deleted task for a project.
+     *
+     * @param ProjectTaskRestoreDeletedRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function restoreDelete(ProjectTaskRestoreDeletedRequest $request, Project $project, Task $task): RedirectResponse
     {
         $task->restore();
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
+    /**
+     * Archives a task for a project.
+     *
+     * @param ProjectTaskArchiveRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
     public function permanentlyDelete(Project $project, Task $task)
     {
         $task->forceDelete();
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-    public function archive(Project $project, Task $task)
+    /**
+     * Archives a task for a project.
+     *
+     * @param ProjectTaskArchiveRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function archive(ProjectTaskArchiveRequest $request, Project $project, Task $task): RedirectResponse
     {
         $task->archive();
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-    public function restoreArchive(Project $project, Task $task)
+    /**
+     * Restores an archived task for a project.
+     *
+     * @param ProjectTaskRestoreArchivedRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function restoreArchive(ProjectTaskRestoreArchivedRequest $request, Project $project, Task $task): RedirectResponse
     {
         $task->restoreFromArchive();
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-    public function updateStatus(ProjectTaskUpdateStatusRequest $request, Project $project, Task $task)
+    /**
+     * Updates the status of a task for a project.
+     *
+     * @param ProjectTaskUpdateStatusRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function updateStatus(ProjectTaskUpdateStatusRequest $request, Project $project, Task $task): RedirectResponse
     {
         $task->update(['status' => $request->status]);
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 
-    public function swapPriority(ProjectTaskSwapPriorityRequest $request, Project $project, Task $task)
+    /**
+     * Swaps the priority of a task with another task.
+     *
+     * @param ProjectTaskSwapPriorityRequest $request
+     * @param Project $project
+     * @param Task $task
+     *
+     * @return RedirectResponse
+     */
+    public function swapPriority(ProjectTaskSwapPriorityRequest $request, Project $project, Task $task): RedirectResponse
     {
         $currentPriority = $task->priority;
         $swapWithTask = $project->tasks()->findOrFail($request->swap_with_task_id);
@@ -125,6 +229,6 @@ class ProjectTaskController extends Controller
         $task->update(['priority' => $swapWithTask->priority]);
         $swapWithTask->update(['priority' => $currentPriority]);
 
-        return redirect()->route('projects.tasks.index', $project);
+        return redirect()->back();
     }
 }

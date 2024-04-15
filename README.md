@@ -134,8 +134,6 @@ Thanks to `laravel/scout` and `typesense` packages, the app has a fuzzy search f
 
 ### What is missing?
 
-It's been roughly 3 days since I started the project, and since I'm already late and I'm working full-time, I couldn't implement all the features I wanted to and wanted to send the project as soon as possible. Here's the list of missing features:
-
 - `users` page - I wanted to implement a page to manage users, but I couldn't make it in time, so I implemented the commands to manage users.
 - `settings` page - I wanted to implement a page to manage settings, dark mode, timezone, language etc.
 - `password reset` - On the login page, I wanted to implement a password reset feature.
